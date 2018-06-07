@@ -3,8 +3,9 @@ import { Graph } from "./graph";
 import "./App.css";
 
 // !!! IMPLEMENT ME
-const canvasWidth = 1400;
-const canvasHeight = 900;
+const canvasWidth = 750;
+const canvasHeight = 600;
+const circleSize = 15;
 
 /**
  * GraphView
@@ -32,62 +33,32 @@ class GraphView extends Component {
     let ctx = canvas.getContext("2d");
     ctx.fillStyle = "grey";
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-    ctx.fillStyle = "green";
-    ctx.fillRect(0,575,1400,500);
-    ctx.beginPath();
-    ctx.moveTo(0,575);
-    ctx.lineTo(100,200);
-    ctx.lineTo(400,500);
-    ctx.lineTo(450,200);
-    ctx.lineTo(700, 400);
-    ctx.lineTo(800,400);
-    ctx.stroke();
+    console.log("in updateCanvas", this.props);
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "16px Arial";
 
-    // ctx.beginPath();
-    // ctx.arc(200, 200, 50, 0, 2 * Math.PI);
-    // ctx.stroke();
-    // ctx.moveTo(0,0);
+    //TODO: figure out if there is a way to do this without looping through vertexes twice
+    for (let vertex of this.props.graph.vertexes) {
+      for (let edge of vertex.edges) {
+        ctx.beginPath();
+        ctx.moveTo(vertex.pos.x, vertex.pos.y);
+        ctx.lineTo(edge.destination.pos.x, edge.destination.pos.y);
+        ctx.stroke();
+      }
+    }
 
-   
-    // function checkIfBelongsToMandelbrotSet(x, y) {
-    //   var realComponentOfResult = x;
-    //   var imaginaryComponentOfResult = y;
-    //   var maxIterations = 100;
-    //   for (var i = 0; i < maxIterations; i++) {
-    //     var tempRealComponent =
-    //       realComponentOfResult * realComponentOfResult -
-    //       imaginaryComponentOfResult * imaginaryComponentOfResult +
-    //       x;
-    //     var tempImaginaryComponent =
-    //       2 * realComponentOfResult * imaginaryComponentOfResult + y;
-    //     realComponentOfResult = tempRealComponent;
-    //     imaginaryComponentOfResult = tempImaginaryComponent;
-
-    //     // Return a number as a percentage
-    //     if (realComponentOfResult * imaginaryComponentOfResult > 5)
-    //       return i / maxIterations * 100;
-    //   }
-    //   return 0; // Return zero if in set
-    // }
-
-    // var magnificationFactor = 2000;
-    // var panX = 0.8;
-    // var panY = 0.6;
-    // for (var x = 0; x < canvas.width; x++) {
-    //   for (var y = 0; y < canvas.height; y++) {
-    //     var belongsToSet = checkIfBelongsToMandelbrotSet(
-    //       x / magnificationFactor - panX,
-    //       y / magnificationFactor - panY
-    //     );
-    //     if (belongsToSet == 0) {
-    //       ctx.fillStyle = "white";
-    //       ctx.fillRect(x, y, 1, 1); // Draw a black pixel
-    //     } else {
-    //       ctx.fillStyle = "hsl(186, 100%, " + belongsToSet + "%)";
-    //       ctx.fillRect(x, y, 1, 1); // Draw a colorful pixel
-    //     }
-    //   }
-    // }
+    for (let vertex of this.props.graph.vertexes) {
+      ctx.beginPath();
+      ctx.arc(vertex.pos.x, vertex.pos.y, circleSize, 0, 2 * Math.PI);
+      ctx.fillStyle = vertex.color;
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "black";
+      ctx.fillText(vertex.value, vertex.pos.x, vertex.pos.y);
+      ctx.stroke();
+    }
 
     // !!! IMPLEMENT ME
     // compute connected components
@@ -115,8 +86,9 @@ class App extends Component {
       graph: new Graph()
     };
 
-    // !!! IMPLEMENT ME
-    // use the graph randomize() method
+    this.state.graph.randomize(5, 4, 150, 0.6);
+    //testing breadth first search
+    this.state.graph.bfs(this.state.graph.vertexes[0]);
   }
 
   render() {

@@ -3,6 +3,10 @@
  */
 export class Edge {
   // !!! IMPLEMENT ME
+  constructor(destination) {
+    //adding origin may save a loop in the draw
+    this.destination = destination;
+  }
 }
 
 /**
@@ -10,6 +14,12 @@ export class Edge {
  */
 export class Vertex {
   // !!! IMPLEMENT ME
+  constructor(value = "default", pos = { x: -1, y: -1 }) {
+    this.edges = [];
+    this.value = value;
+    this.pos = pos;
+    this.color = "white";
+  }
 }
 
 /**
@@ -17,13 +27,32 @@ export class Vertex {
  */
 export class Graph {
   constructor() {
+    console.log("called graph constructor");
     this.vertexes = [];
+  }
+
+  debugCreateTestData() {
+    console.log("called debugCreateTestData");
+    let debugVertex1 = new Vertex("t1", { x: 40, y: 40 });
+    let debugVertex2 = new Vertex("t2", { x: 80, y: 80 });
+    let debugVertex3 = new Vertex("t3", { x: 160, y: 160 });
+
+    let debugEdge1 = new Edge(debugVertex2); //1 to 2
+    debugVertex1.edges.push(debugEdge1);
+
+    let debugEdge2 = new Edge(debugVertex3);
+    debugVertex2.edges.push(debugEdge2);
+
+    this.vertexes.push(debugVertex1);
+    this.vertexes.push(debugVertex2);
+    this.vertexes.push(debugVertex3);
+    console.log(debugVertex1);
   }
 
   /**
    * Create a random graph
    */
-  randomize(width, height, pxBox, probability=0.6) {
+  randomize(width, height, pxBox, probability = 0.6) {
     // Helper function to set up two-way edges
     function connectVerts(v0, v1) {
       v0.edges.push(new Edge(v1));
@@ -39,7 +68,7 @@ export class Graph {
       for (let x = 0; x < width; x++) {
         let v = new Vertex();
         //v.value = 'v' + x + ',' + y;
-        v.value = 'v' + count++;
+        v.value = "v" + count++;
         row.push(v);
       }
       grid.push(row);
@@ -51,14 +80,14 @@ export class Graph {
         // Connect down
         if (y < height - 1) {
           if (Math.random() < probability) {
-            connectVerts(grid[y][x], grid[y+1][x]);
+            connectVerts(grid[y][x], grid[y + 1][x]);
           }
         }
 
         // Connect right
         if (x < width - 1) {
           if (Math.random() < probability) {
-            connectVerts(grid[y][x], grid[y][x+1]);
+            connectVerts(grid[y][x], grid[y][x + 1]);
           }
         }
       }
@@ -72,8 +101,8 @@ export class Graph {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         grid[y][x].pos = {
-          'x': (x * pxBox + boxInnerOffset + Math.random() * boxInner) | 0,
-          'y': (y * pxBox + boxInnerOffset + Math.random() * boxInner) | 0
+          x: (x * pxBox + boxInnerOffset + Math.random() * boxInner) | 0,
+          y: (y * pxBox + boxInnerOffset + Math.random() * boxInner) | 0
         };
       }
     }
@@ -94,9 +123,9 @@ export class Graph {
 
     for (let v of this.vertexes) {
       if (v.pos) {
-        s = v.value + ' (' + v.pos.x + ',' + v.pos.y + '):';
+        s = v.value + " (" + v.pos.x + "," + v.pos.y + "):";
       } else {
-        s = v.value + ':';
+        s = v.value + ":";
       }
 
       for (let e of v.edges) {
@@ -111,6 +140,42 @@ export class Graph {
    */
   bfs(start) {
     // !!! IMPLEMENT ME
+
+    //color gen
+    let randColor =
+      "rgb(" +
+      Math.floor(Math.random() * 256) +
+      " ," +
+      Math.floor(Math.random() * 256) +
+      " ," +
+      Math.floor(Math.random() * 256) +
+      ")";
+    console.log(randColor);
+
+    //method 1
+    let queue = [];
+    let found = [];
+    found.push(start);
+
+    //add to queue
+    queue.push(start);
+    start.color = randColor;
+
+    //2. for each edge in qeueu[0]s edge array if destination is not in found
+    while (queue.length > 0) {
+      const v = queue[0];
+      for (let edge of v.edges) {
+        if (!found.includes(edge.destination)) {
+          found.push(edge.destination);
+          //add to end of queue
+          queue.push(edge.destination);
+          //add color
+          edge.destination.color = randColor;
+        }
+      }
+      //dequeue
+      queue.shift();
+    }
   }
 
   /**
